@@ -13,7 +13,7 @@ Create stored procedures (use StoredProcedures.txt)
 
 Mysql already have dummy data depend on how many dummy data you want
 
-
+Run golang backend with go run main.go
 
 Open postman
 
