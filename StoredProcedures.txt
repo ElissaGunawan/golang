@@ -1,0 +1,57 @@
+DELIMITER //
+
+CREATE PROCEDURE GenerateDataProducts(IN numRecords INT, IN minPrice DECIMAL(10, 0), IN maxPrice DECIMAL(10, 0))
+BEGIN
+    	DECLARE i INT;
+    	DECLARE randomName VARCHAR(50);
+	DECLARE randomBrand VARCHAR(50);
+        DECLARE randomPrice DECIMAL(10, 2);
+        DECLARE randomStatus INT;
+	DECLARE category_id INT;
+
+	SET i = 1;
+
+    	WHILE i <= numRecords DO
+
+    		SET randomName = CONCAT('dummy_', FLOOR(RAND() * 1000));
+		SET category_id = (SELECT id FROM categories ORDER BY RAND() LIMIT 1);
+        	SET randomBrand = CONCAT('brand_', FLOOR(RAND() * 1000));
+        	SET randomPrice = minPrice + (RAND() * (maxPrice - minPrice));
+        	SET randomStatus = FLOOR(RAND() * 2);
+
+        	INSERT INTO products (id, name, category_id, brand, price, status) VALUES (i, randomName, category_id, randomBrand, randomPrice, CASE WHEN randomStatus = 0 THEN 'not active' ELSE 'active' END);
+	
+        	SET i = i + 1;
+    	END WHILE;
+END //
+
+DELIMITER ;
+
+DELIMITER //
+
+CREATE PROCEDURE InsertDummyCategory(IN numUsers INT, IN prefix VARCHAR(10), IN usernameLength INT)
+BEGIN
+    DECLARE i INT;
+    DECLARE characters VARCHAR(62);
+    SET i = 1;
+    SET characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+
+    WHILE i <= numUsers DO
+        SET @randUsername := prefix;
+        SET @j := 1;
+        WHILE @j <= usernameLength DO
+            SET @randChar := SUBSTRING(characters, FLOOR(1 + RAND() * 62), 1);
+            SET @randUsername := CONCAT(@randUsername, @randChar);
+            SET @j = @j + 1;
+        END WHILE;
+        
+        INSERT INTO categories (name) VALUES (@randUsername);
+        
+        SET i = i + 1;
+    END WHILE;
+END //
+
+DELIMITER ;
+
+call InsertDummyCategory(20, "category_", 10);
+call GenerateDataProducts(200000, 10000, 10000000);
